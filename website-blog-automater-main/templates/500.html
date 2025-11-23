@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - AI Research Blog{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <i class="fas fa-server fa-5x text-danger mb-4"></i>
+            <h1 class="display-4 fw-bold mb-3">500</h1>
+            <h2 class="h4 mb-3">Internal Server Error</h2>
+            <p class="text-muted mb-4">
+                Something went wrong on our end. Please try again later.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i>Go Home
+                </a>
+                <button onclick="window.location.reload()" class="btn btn-outline-secondary">
+                    <i class="fas fa-redo me-2"></i>Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
