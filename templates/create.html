@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Create Blog - AI Research Blog{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold mb-3">
+                    <i class="fas fa-plus me-3"></i>Create Blog Post
+                </h1>
+                <p class="lead text-muted">
+                    Write and publish your own AI research blog post
+                </p>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">
+                                <i class="fas fa-heading me-2"></i>Title *
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="title" name="title" 
+                                   value="{{ title or '' }}" required maxlength="500"
+                                   placeholder="Enter an engaging blog post title">
+                            <div class="form-text">Make it catchy and descriptive (max 500 characters)</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="subtitle" class="form-label fw-bold">
+                                <i class="fas fa-text-height me-2"></i>Subtitle
+                            </label>
+                            <input type="text" class="form-control" id="subtitle" name="subtitle" 
+                                   value="{{ subtitle or '' }}" maxlength="500"
+                                   placeholder="Optional subtitle to provide more context">
+                            <div class="form-text">Optional subtitle (max 500 characters)</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="content" class="form-label fw-bold">
+                                <i class="fas fa-edit me-2"></i>Content *
+                            </label>
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    You can use HTML tags for formatting: &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, etc.
+                                </small>
+                            </div>
+                            <textarea class="form-control" id="content" name="content" rows="15" required
+                                      placeholder="Write your blog content here. You can use HTML tags for formatting.">{{ content or '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-lightbulb me-2"></i>Formatting Tips
+                                    </h6>
+                                    <ul class="mb-0 small">
+                                        <li>Use <code>&lt;h2&gt;Section Title&lt;/h2&gt;</code> for main sections</li>
+                                        <li>Use <code>&lt;h3&gt;Subsection&lt;/h3&gt;</code> for subsections</li>
+                                        <li>Use <code>&lt;p&gt;paragraph text&lt;/p&gt;</code> for paragraphs</li>
+                                        <li>Use <code>&lt;strong&gt;text&lt;/strong&gt;</code> for bold text</li>
+                                        <li>Use <code>&lt;em&gt;text&lt;/em&gt;</code> for italic text</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>Publish Blog Post
+                            </button>
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="button" class="btn btn-outline-info btn-lg" onclick="previewContent()">
+                                <i class="fas fa-eye me-2"></i>Preview
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>Content Preview
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent" class="blog-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function previewContent() {
+    const title = document.getElementById('title').value;
+    const subtitle = document.getElementById('subtitle').value;
+    const content = document.getElementById('content').value;
+    
+    let previewHtml = '';
+    
+    if (title) {
+        previewHtml += `<h1 class="display-5 fw-bold mb-3">${escapeHtml(title)}</h1>`;
+    }
+    
+    if (subtitle) {
+        previewHtml += `<h2 class="h4 text-muted mb-4">${escapeHtml(subtitle)}</h2>`;
+    }
+    
+    if (content) {
+        previewHtml += content;
+    } else {
+        previewHtml += '<p class="text-muted"><em>No content to preview</em></p>';
+    }
+    
+    document.getElementById('previewContent').innerHTML = previewHtml;
+    
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    modal.show();
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Auto-save to localStorage
+const titleInput = document.getElementById('title');
+const subtitleInput = document.getElementById('subtitle');
+const contentInput = document.getElementById('content');
+
+function saveToLocalStorage() {
+    localStorage.setItem('blog_draft', JSON.stringify({
+        title: titleInput.value,
+        subtitle: subtitleInput.value,
+        content: contentInput.value,
+        timestamp: new Date().toISOString()
+    }));
+}
+
+function loadFromLocalStorage() {
+    const draft = localStorage.getItem('blog_draft');
+    if (draft) {
+        try {
+            const data = JSON.parse(draft);
+            if (!titleInput.value) titleInput.value = data.title || '';
+            if (!subtitleInput.value) subtitleInput.value = data.subtitle || '';
+            if (!contentInput.value) contentInput.value = data.content || '';
+        } catch (e) {
+            console.error('Error loading draft:', e);
+        }
+    }
+}
+
+// Load draft on page load
+loadFromLocalStorage();
+
+// Save draft on input
+titleInput.addEventListener('input', saveToLocalStorage);
+subtitleInput.addEventListener('input', saveToLocalStorage);
+contentInput.addEventListener('input', saveToLocalStorage);
+
+// Clear draft on successful submission
+document.querySelector('form').addEventListener('submit', function() {
+    localStorage.removeItem('blog_draft');
+});
+
+// Character counters
+titleInput.addEventListener('input', function() {
+    updateCharCounter('title', 500);
+});
+
+subtitleInput.addEventListener('input', function() {
+    updateCharCounter('subtitle', 500);
+});
+
+function updateCharCounter(fieldId, maxLength) {
+    const field = document.getElementById(fieldId);
+    const remaining = maxLength - field.value.length;
+    const helpText = field.nextElementSibling;
+    
+    if (remaining < 50) {
+        helpText.className = 'form-text text-warning';
+        helpText.textContent = `${remaining} characters remaining`;
+    } else {
+        helpText.className = 'form-text';
+        helpText.textContent = fieldId === 'title' ? 
+            'Make it catchy and descriptive (max 500 characters)' : 
+            'Optional subtitle (max 500 characters)';
+    }
+}
+</script>
+{% endblock %}

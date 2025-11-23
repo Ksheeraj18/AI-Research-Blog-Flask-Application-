@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - AI Research Blog{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <i class="fas fa-exclamation-triangle fa-5x text-warning mb-4"></i>
+            <h1 class="display-4 fw-bold mb-3">404</h1>
+            <h2 class="h4 mb-3">Page Not Found</h2>
+            <p class="text-muted mb-4">
+                The page you're looking for doesn't exist or has been moved.
+            </p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-home me-2"></i>Go Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
